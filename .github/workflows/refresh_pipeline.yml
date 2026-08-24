@@ -1,0 +1,38 @@
+name: Live Data Refresh Pipeline
+
+on:
+  schedule:
+    # Run every 15 minutes to keep the platform near-real-time ($0 compute)
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Allow manual triggering from GitHub UI
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+      
+    - name: Execute Refresh Pipeline
+      env:
+        # These secrets must be added in GitHub Repository Settings -> Secrets
+        FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      run: |
+        # Run the sequential pipeline orchestrator
+        # Note: We comment out the infinite loop inside refresh_pipeline for CI execution
+        python data_pipeline/fetch_fires.py
+        python data_pipeline/load_data.py
+        python data_pipeline/ml_dataset_builder.py
+        python data_pipeline/train_model3.py
+        python data_pipeline/generate_map_data.py
