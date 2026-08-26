@@ -32,6 +32,7 @@ jobs:
         # Run the sequential pipeline orchestrator
         # Note: We comment out the infinite loop inside refresh_pipeline for CI execution
         # We also check if the NASA key is provided before running fetch_fires
+        mkdir -p data
         if [ -n "$FIRMS_MAP_KEY" ]; then
           python data_pipeline/fetch_fires.py
         else
