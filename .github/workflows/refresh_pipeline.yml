@@ -27,11 +27,17 @@ jobs:
       env:
         # These secrets must be added in GitHub Repository Settings -> Secrets
         FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL || 'sqlite:///data/wildfire.db' }}
       run: |
         # Run the sequential pipeline orchestrator
         # Note: We comment out the infinite loop inside refresh_pipeline for CI execution
-        python data_pipeline/fetch_fires.py
+        # We also check if the NASA key is provided before running fetch_fires
+        if [ -n "$FIRMS_MAP_KEY" ]; then
+          python data_pipeline/fetch_fires.py
+        else
+          echo "Warning: FIRMS_MAP_KEY secret not found. Skipping live NASA fetch."
+        fi
+        
         python data_pipeline/load_data.py
         python data_pipeline/ml_dataset_builder.py
         python data_pipeline/train_model3.py
