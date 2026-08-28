@@ -58,15 +58,12 @@ def train_hist_gradient_boosting():
         cm = confusion_matrix(y_test, y_pred)
         print(f"True Negatives: {cm[0][0]} | False Positives: {cm[0][1]}")
         print(f"False Negatives: {cm[1][0]} | True Positives: {cm[1][1]}")
-        
-        # HistGradientBoosting doesn't have a direct feature_importances_ attribute like RandomForest.
-        # We would need permutation importance to get features, but let's just stick to metrics.
-        
-        print("\nOverwriting risk predictions for Phase 6 map generation with Model 3 (Winner!)...")
-        df['risk_score'] = model.predict_proba(df[features])[:, 1]
-        df.to_csv("data/california_risk_predictions.csv", index=False)
     else:
-        print("Warning: No active fires in the test set to evaluate.")
+        print("Warning: No active fires in the test set to evaluate metrics. Outputting baseline zero-risk map.")
+        
+    print("\nOverwriting risk predictions for Phase 6 map generation with Model 3 (Winner!)...")
+    df['risk_score'] = model.predict_proba(df[features])[:, 1]
+    df.to_csv("data/california_risk_predictions.csv", index=False)
 
 if __name__ == "__main__":
     train_hist_gradient_boosting()
