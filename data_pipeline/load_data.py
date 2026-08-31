@@ -5,8 +5,8 @@ def load_csv_to_db(csv_path="data/clean_fires.csv"):
     print(f"Loading data from {csv_path} into the database...")
     try:
         df = pd.read_csv(csv_path)
-    except FileNotFoundError:
-        print("Clean data not found. Run fetch_fires.py first.")
+    except (FileNotFoundError, pd.errors.EmptyDataError):
+        print("Clean data not found or is completely empty. Skipping database load.")
         return
 
     # Convert timestamp column back to datetime
